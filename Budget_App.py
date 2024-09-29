@@ -1,9 +1,10 @@
 import json
 
-def get_float_input(input):
+def get_float_input(prompt):
+    #makes sure the input is an eligble float
     while True:
         try:
-            value = float(input(input))
+            value = float(input(prompt))
             if value < 0:
                 print("Please enter a non-negative number.")
             else:
@@ -12,7 +13,9 @@ def get_float_input(input):
             print("Invalid input. Please enter a valid number.")
 
 
+
 def add_expense(expenses):
+    #adds an expense to the budget
     description = input("Enter kind of expense: ")
     amount = get_float_input("Enter expense amount: ")
     expenses.append({"description": description, "amount": amount})
@@ -20,15 +23,18 @@ def add_expense(expenses):
 
 
 def get_sum_expenses(expenses):
+    #returns the sum of all expenses
     sum = 0
     for expense in expenses:
         sum += expense["amount"]
     return sum
 
 def get_balance(budget, expenses):
+    #returns balance
     return budget - get_sum_expenses(expenses)
 
 def show_budget_details(budget, expenses):
+    #shows details from the budget
     print(f"\nTotal budget: ${budget:.2f}\n")
     print("Expenses:\n")
     for expense in expenses:
@@ -38,6 +44,7 @@ def show_budget_details(budget, expenses):
 
 
 def load_budget_data(filepath):
+    #loads the data from the budget from json-file
     try: 
         with open(filepath, 'r') as file:
             data = json.load(file)
@@ -46,6 +53,7 @@ def load_budget_data(filepath):
         return 0, [] #Returns empty budget 
 
 def save_budget_details(filepath, initial_budget, expenses):
+    #saves the details to json-file
     data = {
         'initial_budget': initial_budget,
         'expenses' : expenses
@@ -55,6 +63,7 @@ def save_budget_details(filepath, initial_budget, expenses):
         json.dump(data, file, indent=4)
 
 def reset_budget_data(filepath):
+    #resets budget
     data = {
         'initial_budget': 0.0,
         'expenses': []
@@ -70,6 +79,11 @@ def main():
     filepath = 'budget_data.json'
 
     initial_budget, expenses = load_budget_data(filepath)
+
+    # Check if budget is not set, and ask the user to input the budget
+    if initial_budget == 0:
+        initial_budget = get_float_input("Please set your initial budget: ")
+        save_budget_details(filepath, initial_budget, expenses)  # Save the budget right after setting it
     
     while True:
         print("\nWhat would you like to do with the budget?")
@@ -81,28 +95,25 @@ def main():
         choice = int(input("Enter your choice (1/2/3/4): "))
 
         if choice == 1:
-            description = input("Enter kind of expense: ")
-            amount = float(input("Enter expense amount: "))
-            if amount <= get_balance(initial_budget, expenses):
-                add_expense(expenses, description, amount)
-            else:
-                print("You don't have enough money.")
+            add_expense(expenses)  # Add an expense
 
         elif choice == 2:
-            show_budget_details(initial_budget, expenses)
+            show_budget_details(initial_budget, expenses)  # Show budget details
 
         elif choice == 3:
-            reset_budget_data(filepath)
+            reset_budget_data(filepath)  # Reset the budget data
+
             initial_budget = 0.0
             expenses = []
-        
+
         elif choice == 4:
-            save_budget_details(filepath, initial_budget, expenses)
+            save_budget_details(filepath, initial_budget, expenses)  # Save the budget and expenses
             print("Exiting budget application.")
             break
 
         else:
             print("Invalid choice, please choose again.")
+
 
 
 if __name__ == "__main__":
